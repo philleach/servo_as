@@ -1,6 +1,6 @@
 # servo_as
 
-A small asynchronous MicroPython servo library for conrolling SG90 servos with a Raspberry Pi Pico.
+A small asynchronous MicroPython servo library for controling (initially) SG90 servos with a Raspberry Pi Pico. It may work on other platforms and with other PWM controlled servos but I havn't tried.
 
 **Note:** This is a very incomplete WIP project. It may run, and your welcome to browse but please don't depend on it as everything about it is subject to change!
 
