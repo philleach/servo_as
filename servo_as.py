@@ -1,4 +1,3 @@
-from math import degrees
 import uasyncio as asyncio
 from machine import Pin, PWM
 
@@ -34,35 +33,35 @@ class Servo_SG90:
         print(f'position {self.position}, Duty {self._degrees_to_duty(self.position)} {self.servo_pwm.duty_u16()}')
         self.lock = asyncio.Lock()
 
-    async def move_to_poistion(self, degrees:int):
-        print(f"Move to {degrees} degrees")
+    async def move_to_poistion(self, new_position:int):
+        print(f"Move to {new_position} degrees")
         await self.lock.acquire()
-        degrees = self._limit_range(degrees)
+        new_position = self._limit_range(new_position)
 
-        for step in self._steps(degrees):
+        for step in self._steps(new_position):
             self.servo_pwm.duty_u16(step)
             await asyncio.sleep_ms(10)  
 
-        self.position = degrees  
+        self.position = new_position  
         self.lock.release()
         
-    def _limit_range(self, degrees: int) -> int:
-        if degrees > Servo_SG90.PLUS_NINETY:
+    def _limit_range(self, position: int) -> int:
+        if position > Servo_SG90.PLUS_NINETY:
             return Servo_SG90.PLUS_NINETY
-        elif degrees < Servo_SG90.MINUS_NINETY:
+        elif position < Servo_SG90.MINUS_NINETY:
             return Servo_SG90.MINUS_NINETY
         else:
-            return degrees
+            return position
 
-    def _degrees_to_duty(self, degrees:int) -> int:
-        return Servo_SG90.MIN_DUTY + (((degrees + Servo_SG90.PLUS_NINETY) * (Servo_SG90.MAX_DUTY - Servo_SG90.MIN_DUTY)) // 180)
+    def _degrees_to_duty(self, position:int) -> int:
+        return Servo_SG90.MIN_DUTY + (((position + Servo_SG90.PLUS_NINETY) * (Servo_SG90.MAX_DUTY - Servo_SG90.MIN_DUTY)) // 180)
 
-    def _steps(self, degrees) -> list:
+    def _steps(self, position) -> list:
 
-        if degrees < self.position:
-            return list(reversed(self._generate_step_values(degrees, self.position)))          
+        if position < self.position:
+            return list(reversed(self._generate_step_values(position, self.position)))          
         else:
-            return self._generate_step_values(self.position, degrees)
+            return self._generate_step_values(self.position, position)
             
 
     def _generate_step_values(self, low:int, high:int) :
