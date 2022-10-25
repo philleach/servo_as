@@ -1,2 +1,2 @@
 # servo_as
-A small MicroPython Asynchronous Servo library.
+A small asynchronous MicroPython servo library for conrolling SG90 servos with a Raspberry Pi Pico.
