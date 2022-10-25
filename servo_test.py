@@ -2,13 +2,12 @@ import uasyncio as asyncio
 from servo_as import Servo_SG90 as Servo
 
 async def main():
-    servo1 =  Servo('Servo 1',0,Servo.CENTER) 
-    print('Starting...')
+    servo1 =  Servo('Servo 1',0,Servo.CENTER,45) 
+    
     while True:
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
         asyncio.create_task(servo1.move_to_poistion(Servo.PLUS_NINETY))
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
         asyncio.create_task(servo1.move_to_poistion(Servo.MINUS_NINETY))
-
         
 asyncio.run(main())

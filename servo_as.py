@@ -23,7 +23,6 @@ class Servo_SG90:
                  rotational_velocity:int = 30,
                  interpolation_model: str = 'linear'):
 
-        print(f"MIN_DUTY {Servo_SG90.MIN_DUTY}, MAX_DUTY {Servo_SG90.MAX_DUTY}, DUTY_PER_DEGREE {Servo_SG90.DUTY_PER_DEGREE}")
         # Set attributes
         self.name = name
         self.pin_number = pin_number
@@ -41,13 +40,11 @@ class Servo_SG90:
         self.servo_pwm.freq(Servo_SG90.FREQUENCY)
         self.servo_pwm.duty_u16(self._degrees_to_duty(self.position))
         
-        print(f'position {self.position}, Duty {self._degrees_to_duty(self.position)} {self.servo_pwm.duty_u16()}')
         # Create lock control access to this servo
         self.lock = asyncio.Lock()
 
     async def move_to_poistion(self, new_position:int, rotational_velocity = None):
-        print(f"Move to {new_position} degrees")
-
+        
         await self.lock.acquire()
         new_position = self._limit_range(new_position)
         if rotational_velocity:
@@ -55,7 +52,8 @@ class Servo_SG90:
         else:
             velocity = self.rotational_velocity
 
-        for step in self.interpolation_fn(new_position, velocity):
+        steps = self.interpolation_fn(new_position, velocity)
+        for step in steps:
             self.servo_pwm.duty_u16(step)
             await asyncio.sleep_ms(10)  
 
@@ -76,9 +74,9 @@ class Servo_SG90:
     def _steps(self, position, velocity) -> list:
 
         if position < self.position:
-            return list(reversed(self._generate_step_values(position, self.position, velocity)))          
+            return self._generate_step_values(position, self.position, velocity)         
         else:
-            return self._generate_step_values(self.position, position, velocity)
+            return list(reversed(self._generate_step_values(self.position, position, velocity)))
             
 
     def _generate_step_values(self, low:int, high:int, velocity:int) :
@@ -86,7 +84,6 @@ class Servo_SG90:
         duty_delta = self._degrees_to_duty(high) - self._degrees_to_duty(low)
         no_of_steps = delta * 100 // velocity 
 
-        print(f'{no_of_steps} steps to move {delta} degrees')
         steps = []
         for x in range(no_of_steps):
             y = Servo_SG90.MIN_DUTY + ((duty_delta * x) // no_of_steps)
