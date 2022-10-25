@@ -4,7 +4,8 @@ A small asynchronous MicroPython servo library for conrolling SG90 servos with a
 
 **Note:** This is a very incomplete WIP project. It may run, and your welcome to browse but please don't depend on it as everything about it is subject to change!
 
-Example Usage :
+## Example Usage
+
 ```python
 import uasyncio as asyncio
 from servo_as import Servo_SG90 as Servo
@@ -21,3 +22,11 @@ async def main():
 
 asyncio.run(main())
 ```
+
+## Assumptions
+  
+- The servo works as decribed in the datasheet.
+
+## TODO (Possibly)
+
+1. Calibration to allow handling of 'misbehaving' servos.
