@@ -47,7 +47,6 @@ class Servo_SG90:
         self.servo_pwm.freq(Servo_SG90.FREQUENCY)
         self.servo_pwm.duty_u16(self.position['duty'])
         
-        print(f'{self.position}')
         # Create lock control access to this servo
         self.lock = asyncio.Lock()
     
@@ -75,7 +74,6 @@ class Servo_SG90:
             self.servo_pwm.duty_u16(step['duty'])
             self.position = step
             await asyncio.sleep_ms(1)  
-
         self.lock.release()
         
     def _limit_range(self, position: int) -> int:
@@ -91,30 +89,23 @@ class Servo_SG90:
         if from_position['duty'] <= to_position['duty']:
             return self._generate_step_values(from_position, to_position, velocity)         
         else:
-            return list(reversed(self._generate_step_values(to_position, from_position, velocity)))
+            return self._generate_step_values(to_position, from_position, velocity, reverse=True)
             
 
-    def _generate_step_values(self, from_pos:dict, to_pos:dict, velocity:int) :
-        
-        print(f'From: {from_pos}')
-        print(f'To:   {to_pos}')
+    def _generate_step_values(self, from_pos:dict, to_pos:dict, velocity:int, reverse: bool=False) :
  
         duty_velocity = velocity * self.DUTY_PER_DEGREE
         duty_delta = to_pos['duty']  - from_pos['duty']
         no_of_steps = (duty_delta * 1000) // duty_velocity 
-
-        print('----------')
-        print(f'Velocity:      {velocity}')
-        print(f'Duty velocity: {duty_velocity}')
-        print(f'Duty Delta:    {duty_delta}')
-        print(f'No of steps:   {no_of_steps}')
-        print('----------') 
 
         steps = []
         for x in range(no_of_steps):
             step = dict()
             step['duty'] = from_pos['duty'] + ((duty_delta * x) // no_of_steps)
             step['degrees'] = self.duty_to_degrees(step['duty'])
-            steps.append(step) 
+            if reverse:
+                steps.insert(0,step)
+            else:
+                steps.append(step) 
         return steps
         
